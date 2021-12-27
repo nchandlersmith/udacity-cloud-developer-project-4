@@ -40,6 +40,10 @@ provider:
             - xray:PutTelemetryRecords
             - xray:PutTraceSegments
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+          Resource: !GetAtt TodosTable.Arn
 
 
 functions:
@@ -73,6 +77,8 @@ functions:
           request:
             schemas:
               application/json: ${file(models/create-todo-model.json)}
+    environment:
+      TODO_TABLE_NAME: !Ref TodosTable
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
