@@ -20,7 +20,7 @@ provider:
     lambda: true
     apiGateway: true
 
-  # Use these variables in the functions and resouorces section below. For example, 
+  # Use these variables in the functions and resources section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
@@ -43,11 +43,11 @@ provider:
         - Effect: Allow
           Action:
             - dynamodb:PutItem
+            - dynamodb:Query
           Resource: !GetAtt TodosTable.Arn
 
 
 functions:
-
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
@@ -61,6 +61,8 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+    environment:
+      TODO_TABLE_NAME: !Ref TodosTable
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
@@ -121,14 +123,14 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: todoId
-            AttributeType: S
           - AttributeName: userId
+            AttributeType: S
+          - AttributeName: todoId
             AttributeType: S
         KeySchema:
-          - AttributeName: todoId
-            KeyType: HASH
           - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: todoId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:povider.environment.TODOS_TABLE}
