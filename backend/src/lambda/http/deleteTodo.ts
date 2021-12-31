@@ -25,14 +25,7 @@ export const handler = middy(
             "todoId": todoId,
             "userId": "Ghost Rider"
         }
-    }).promise().catch(error => {
-        const message = `Error encountered while deleting ${todoId}. Error: ${JSON.stringify(error)}`
-        console.error(message)
-        return {
-            statusCode: 500,
-            body: JSON.stringify({message})
-        }
-    })
+    }).promise()
 
     return {
         statusCode: 204,
