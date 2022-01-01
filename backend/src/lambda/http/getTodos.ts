@@ -8,7 +8,7 @@ import { DocumentClient, ItemList } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
 
-const logger = createLogger('GetTodos')
+const logger = createLogger('getTodos')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
