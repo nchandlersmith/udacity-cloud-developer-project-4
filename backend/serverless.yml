@@ -89,8 +89,14 @@ functions:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
-          method: patch
+          method: put
           path: todos/{todoId}
+          cors: true
+          request:
+            schemas:
+              application/json: ${file(models/update-todo-model.json)}
+    environment:
+      TODO_TABLE_NAME: !Ref TodosTable
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
