@@ -3,32 +3,23 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-import { createLogger } from '../../utils/logger'
-import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+import { DocumentClient, ItemList } from 'aws-sdk/clients/dynamodb'
 
+import { createLogger } from '../../utils/logger'
+import { getUserId } from '../utils'
 
 const logger = createLogger('GetTodos')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Getting all the todos for Ghost Rider ', event)
-    const todos = await new DocumentClient().query({
-        TableName: process.env.TODO_TABLE_NAME,
-        ExpressionAttributeValues: {
-          ':userId': 'Ghost Rider'
-        },
-        KeyConditionExpression: 'userId = :userId'
-    }).promise()
+    const userId = getUserId(event) // TODO: should not accept the event
+    logger.info('Getting all the todos for user.')
 
-    logger.info(`Found these items for Ghost Rider: ${JSON.stringify(todos.Items)}`)
+    const todos: DocumentClient.QueryOutput = await getTodos(userId)
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({items: todos.Items})
-    }
+    logger.info(`Found ${todos.Items.length} todos.`)
+
+    return buildResponse(200, todos.Items)
   })
 
 handler.use(
@@ -36,3 +27,21 @@ handler.use(
     credentials: true
   })
 )
+
+async function getTodos(userId: string): Promise<DocumentClient.QueryOutput> {
+  return new DocumentClient().query({
+    TableName: process.env.TODO_TABLE_NAME,
+    ExpressionAttributeValues: {
+      ':userId': userId
+    },
+    KeyConditionExpression: 'userId = :userId'
+  }).promise()
+}
+
+function buildResponse(statusCode: number, body: ItemList): APIGatewayProxyResult{
+  return {
+    statusCode,
+    body: JSON.stringify(body)
+  }
+}
+
