@@ -12,23 +12,41 @@ import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 const logger = createLogger('UpdateTodo')
 const table = process.env.TODO_TABLE_NAME
+const docClient = new DocumentClient()
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
-    logger.info(`Attempting to update id ${todoId} with ${updatedTodo} on ${table}`)
+    logger.info(`Received request to update todo ${todoId}.`)
+    
+    const oldTodo = await docClient.query({
+      TableName: table,
+      ExpressionAttributeValues: {
+        ':todoId': todoId,
+        ':userId': 'Ghost Rider'
+      },
+      KeyConditionExpression: 'todoId = :todoId and userId = :userId'
+    }).promise()
 
-    const item = {
+    logger.info(`Here is the old todo ${JSON.stringify(oldTodo)}`)
+    
+    const updatedItem = {
       todoId,
       userId: 'Ghost Rider',
-      ...updatedTodo
+      attachmentUrl: "",
+      dueDate: updatedTodo.dueDate,
+      createdAt: oldTodo,
+      name: updatedTodo.name,
+      done: updatedTodo.done
     }
+
+    logger.info(`Updating table ${table} with ${JSON.stringify(updatedItem)}.`)
 
     const response = await new DocumentClient().put({
       TableName: table,
-      Item: item
+      Item: updatedItem
     }).promise()
 
     return {
