@@ -28,16 +28,18 @@ export const handler = middy(
         ':userId': 'Ghost Rider'
       },
       KeyConditionExpression: 'todoId = :todoId and userId = :userId'
-    }).promise()
+    })
+    .promise()
+    .then(result => result.Items[0])
 
     logger.info(`Here is the old todo ${JSON.stringify(oldTodo)}`)
     
     const updatedItem = {
       todoId,
       userId: 'Ghost Rider',
-      attachmentUrl: "",
+      attachmentUrl: oldTodo.attachmentUrl,
       dueDate: updatedTodo.dueDate,
-      createdAt: oldTodo,
+      createdAt: oldTodo.createdAt,
       name: updatedTodo.name,
       done: updatedTodo.done
     }
