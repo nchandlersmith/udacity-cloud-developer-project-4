@@ -24,3 +24,14 @@ export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
       KeyConditionExpression: 'userId = :userId'
     }).promise()
   }
+
+  export async function deleteTodo(todoId: string, userId: string): Promise<void> {
+    logger.info(`Deleting todo: ${todoId}`)
+    await new DocumentClient().delete({
+      TableName: tableName,
+      Key: {
+          "todoId": todoId,
+          "userId": userId
+      }
+  }).promise()
+  }

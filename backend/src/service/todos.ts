@@ -16,6 +16,11 @@ export async function createTodo(createTodoRequest: CreateTodoRequest, userId: s
     return insertTodo(buildTodo(createTodoRequest, userId))
 }
 
+export async function deleteTodo(todoId: string, userId: string): Promise<void> {
+  logger.info('Deleting todo.')
+  await deleteTodo(todoId, userId)
+}
+
 function buildTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoItem {
     logger.info('Building TodoItem from request.')
     return {
