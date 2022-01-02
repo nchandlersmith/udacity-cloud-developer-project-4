@@ -3,11 +3,12 @@ import { TodoItem } from "../models/TodoItem"
 import { createLogger } from "../utils/logger"
 
 const logger = createLogger('Todo Repository')
+const docClient = new DocumentClient()
 const tableName = process.env.TODO_TABLE_NAME
 
 export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
     logger.info('Inserting todo.')
-    await new DocumentClient().put({
+    await docClient.put({
       TableName: tableName,
       Item: todo
     }).promise()
@@ -16,7 +17,7 @@ export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
 
   export async function findAllTodosByUser(userId: string): Promise<DocumentClient.QueryOutput> {
     logger.info('Finding todos by user.')
-    return new DocumentClient().query({
+    return docClient.query({
       TableName: tableName,
       ExpressionAttributeValues: {
         ':userId': userId
@@ -27,7 +28,7 @@ export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
 
   export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string): Promise<void> {
     logger.info(`Deleting todo: ${todoId}`)
-    await new DocumentClient().delete({
+    await docClient.delete({
       TableName: tableName,
       Key: {
           "todoId": todoId,
