@@ -25,7 +25,7 @@ export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
     }).promise()
   }
 
-  export async function deleteTodo(todoId: string, userId: string): Promise<void> {
+  export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string): Promise<void> {
     logger.info(`Deleting todo: ${todoId}`)
     await new DocumentClient().delete({
       TableName: tableName,

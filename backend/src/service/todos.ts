@@ -1,6 +1,6 @@
 import * as uuid from 'uuid'
 import { TodoItem } from "../models/TodoItem";
-import { findAllTodosByUser, insertTodo } from '../persistence/todoRepository';
+import { deleteTodoByTodoAndUserIds, findAllTodosByUser, insertTodo } from '../persistence/todoRepository';
 import { CreateTodoRequest } from "../requests/CreateTodoRequest";
 import { createLogger } from '../utils/logger';
 
@@ -18,7 +18,7 @@ export async function createTodo(createTodoRequest: CreateTodoRequest, userId: s
 
 export async function deleteTodo(todoId: string, userId: string): Promise<void> {
   logger.info('Deleting todo.')
-  await deleteTodo(todoId, userId)
+  await deleteTodoByTodoAndUserIds(todoId, userId)
 }
 
 function buildTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoItem {
