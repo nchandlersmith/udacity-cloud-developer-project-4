@@ -14,6 +14,7 @@ export const handler = middy(
     const todoId = event.pathParameters.todoId
     logger.info(`Attempting to delete todo with id: ${todoId} from table: `)
     await deleteTodo(todoId, getUserId(event.headers.Authorization))
+    logger.info('Todo deleted')
 
     return {
         statusCode: 204,
