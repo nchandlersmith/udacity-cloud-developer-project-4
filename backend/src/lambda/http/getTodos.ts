@@ -3,23 +3,23 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-import { DocumentClient, ItemList } from 'aws-sdk/clients/dynamodb'
 
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
+import { getTodos } from '../../service/todos'
+import { TodoItem } from '../../models/TodoItem'
 
-const logger = createLogger('getTodos')
+const logger = createLogger('Get Todos Lambda')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const userId = getUserId(event) // TODO: should not take event
+    const userId = getUserId(event.headers.Authorization)
+    
     logger.info('Getting all the todos for user.')
+    const todos: TodoItem[] = await getTodos(userId)
+    logger.info(`Found ${todos.length} todos.`)
 
-    const todos: DocumentClient.QueryOutput = await getTodos(userId)
-
-    logger.info(`Found ${todos.Items.length} todos.`)
-
-    return buildResponse(200, todos.Items)
+    return buildResponse(200, {items: todos})
   })
 
 handler.use(
@@ -28,17 +28,7 @@ handler.use(
   })
 )
 
-async function getTodos(userId: string): Promise<DocumentClient.QueryOutput> {
-  return new DocumentClient().query({
-    TableName: process.env.TODO_TABLE_NAME,
-    ExpressionAttributeValues: {
-      ':userId': userId
-    },
-    KeyConditionExpression: 'userId = :userId'
-  }).promise()
-}
-
-function buildResponse(statusCode: number, body: ItemList): APIGatewayProxyResult{
+function buildResponse(statusCode: number, body: any): APIGatewayProxyResult{
   return {
     statusCode,
     body: JSON.stringify(body)

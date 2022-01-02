@@ -12,13 +12,13 @@ const logger = createLogger('CreateTodo')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Creating todo...')
     const createTodoRequest: CreateTodoRequest = JSON.parse(event.body)
-    const {'userId': _a, ...todoResponse} = await createTodo(createTodoRequest, getUserId(event))
-    return {
-      statusCode: 201,
-      body: JSON.stringify({todoResponse})
-    }
+    
+    logger.info(`Creating todo from request: ${JSON.stringify(createTodoRequest)}`)
+    const {'userId': _a, ...todoResponse} = await createTodo(createTodoRequest, getUserId(event.headers.Authorization))
+    logger.info(`Todo created: ${JSON.stringify(todoResponse)}`)
+
+    return buildResponse(201, todoResponse)
   })
 
 handler.use(
@@ -26,3 +26,20 @@ handler.use(
     credentials: true
   })
 )
+
+interface TodoResponse {
+  todoId: string;
+  createdAt: string;
+  name: string;
+  dueDate: string;
+  done: boolean;
+  attachmentUrl?: string;
+
+}
+
+function buildResponse(statusCode: number, todoResponse: TodoResponse) {
+  return {
+    statusCode,
+    body: JSON.stringify({item: todoResponse})
+  }
+}
