@@ -12,7 +12,7 @@ const logger = createLogger('getTodos')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const userId = getUserId(event)
+    const userId = getUserId(event) // TODO: should not take event
     logger.info('Getting all the todos for user.')
 
     const todos: DocumentClient.QueryOutput = await getTodos(userId)
