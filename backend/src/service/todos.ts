@@ -14,7 +14,7 @@ export async function getTodos(userId: string): Promise<TodoItem[]> {
 
 export async function createTodo(createTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
     logger.info('Creating todo.')
-    return insertTodo(buildTodo(createTodoRequest, userId))
+    return insertTodo(buildNewTodo(createTodoRequest, userId))
 }
 
 export async function deleteTodo(todoId: string, userId: string): Promise<void> {
@@ -25,20 +25,12 @@ export async function deleteTodo(todoId: string, userId: string): Promise<void> 
 export async function updateTodo(todoId: string, userId: string, update: UpdateTodoRequest): Promise<void> {
   const oldTodo = await findTodoById(todoId, userId) as TodoItem
   logger.info('Found old todo')
-  const updatedItem: TodoItem = {
-    todoId,
-    userId,
-    attachmentUrl: oldTodo.attachmentUrl,
-    dueDate: update.dueDate,
-    createdAt: oldTodo.createdAt,
-    name: update.name,
-    done: update.done
-  }
+  const updatedItem: TodoItem = buildUpdatedTodo(oldTodo, update)
   insertTodo(updatedItem)
   logger.info('Finished updating todo')
 }
 
-function buildTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoItem {
+function buildNewTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoItem {
     logger.info('Building TodoItem from request.')
     return {
       todoId: uuid.v4(),
@@ -50,3 +42,15 @@ function buildTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoIt
       attachmentUrl: ''
     }
   }
+
+function buildUpdatedTodo(oldTodo: TodoItem, update: UpdateTodoRequest) {
+  return {
+    todoId: oldTodo.todoId,
+    userId: oldTodo.userId,
+    attachmentUrl: oldTodo.attachmentUrl,
+    dueDate: update.dueDate,
+    createdAt: oldTodo.createdAt,
+    name: update.name,
+    done: update.done
+  }
+}
