@@ -15,24 +15,37 @@ export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
     return todo
   }
 
-  export async function findAllTodosByUser(userId: string): Promise<DocumentClient.QueryOutput> {
-    logger.info('Finding todos by user.')
-    return docClient.query({
-      TableName: tableName,
-      ExpressionAttributeValues: {
-        ':userId': userId
-      },
-      KeyConditionExpression: 'userId = :userId'
-    }).promise()
-  }
-
-  export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string): Promise<void> {
-    logger.info(`Deleting todo: ${todoId}`)
-    await docClient.delete({
-      TableName: tableName,
-      Key: {
-          "todoId": todoId,
-          "userId": userId
-      }
+export async function findTodoById(todoId: string, userId: string): Promise<DocumentClient.QueryOutput> {
+  logger.info(`Finding todo: ${todoId}`)
+  return docClient.query({
+    TableName: tableName,
+    ExpressionAttributeValues: {
+      ':todoId': todoId,
+      ':userId': userId
+    },
+    KeyConditionExpression: 'todoId = :todoId and userId = :userId'
   }).promise()
-  }
+  .then(result => result.Items[0])
+}
+
+export async function findAllTodosByUser(userId: string): Promise<DocumentClient.QueryOutput> {
+  logger.info('Finding todos by user.')
+  return docClient.query({
+    TableName: tableName,
+    ExpressionAttributeValues: {
+      ':userId': userId
+    },
+    KeyConditionExpression: 'userId = :userId'
+  }).promise()
+}
+
+export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string): Promise<void> {
+  logger.info(`Deleting todo: ${todoId}`)
+  await docClient.delete({
+    TableName: tableName,
+    Key: {
+        "todoId": todoId,
+        "userId": userId
+    }
+}).promise()
+}

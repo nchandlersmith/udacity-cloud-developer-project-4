@@ -1,7 +1,8 @@
 import * as uuid from 'uuid'
 import { TodoItem } from "../models/TodoItem";
-import { deleteTodoByTodoAndUserIds, findAllTodosByUser, insertTodo } from '../persistence/todoRepository';
+import { deleteTodoByTodoAndUserIds, findAllTodosByUser, findTodoById, insertTodo } from '../persistence/todoRepository';
 import { CreateTodoRequest } from "../requests/CreateTodoRequest";
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('Todos Service')
@@ -19,6 +20,22 @@ export async function createTodo(createTodoRequest: CreateTodoRequest, userId: s
 export async function deleteTodo(todoId: string, userId: string): Promise<void> {
   logger.info('Deleting todo.')
   await deleteTodoByTodoAndUserIds(todoId, userId)
+}
+
+export async function updateTodo(todoId: string, userId: string, update: UpdateTodoRequest): Promise<void> {
+  const oldTodo = await findTodoById(todoId, userId) as TodoItem
+  logger.info('Found old todo')
+  const updatedItem: TodoItem = {
+    todoId,
+    userId,
+    attachmentUrl: oldTodo.attachmentUrl,
+    dueDate: update.dueDate,
+    createdAt: oldTodo.createdAt,
+    name: update.name,
+    done: update.done
+  }
+  insertTodo(updatedItem)
+  logger.info('Finished updating todo')
 }
 
 function buildTodo(createTodoRequest: CreateTodoRequest, userId: string): TodoItem {
