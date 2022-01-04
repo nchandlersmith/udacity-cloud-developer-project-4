@@ -1,9 +1,13 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import * as AWSXRay from 'aws-xray-sdk'
+import * as AWS from 'aws-sdk'
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from "../models/TodoItem"
 import { createLogger } from "../utils/logger"
 
+const XAWS = AWSXRay.captureAWS(AWS)
+const docClient = new XAWS.DynamoDB.DocumentClient()
+
 const logger = createLogger('Todo Repository')
-const docClient = new DocumentClient()
 const tableName = process.env.TODO_TABLE_NAME
 
 export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
