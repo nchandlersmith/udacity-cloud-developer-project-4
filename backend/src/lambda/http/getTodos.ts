@@ -2,7 +2,7 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
+import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
@@ -22,10 +22,12 @@ export const handler = middy(
     return buildResponse(200, {items: todos})
   })
 
-handler.use(
-  cors({
-    credentials: true
-  })
+handler
+  .use(httpErrorHandler())
+  .use(
+    cors({
+      credentials: true
+    })
 )
 
 function buildResponse(statusCode: number, body: any): APIGatewayProxyResult{

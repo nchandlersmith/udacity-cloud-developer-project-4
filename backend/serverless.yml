@@ -93,6 +93,7 @@ functions:
           method: put
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
           request:
             schemas:
               application/json: ${file(models/update-todo-model.json)}
@@ -107,6 +108,8 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
 
@@ -119,6 +122,7 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
+          authorizer: Auth
 
 resources:
   Resources:
@@ -138,6 +142,8 @@ resources:
             AttributeType: S
           - AttributeName: todoId
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -145,6 +151,16 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:povider.environment.TODOS_TABLE}
+        # Taken from the assignment instructions
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     # TODO: Complete the bucket properties below. 
     # Do not forget to add the CorsConfiguration propoerty

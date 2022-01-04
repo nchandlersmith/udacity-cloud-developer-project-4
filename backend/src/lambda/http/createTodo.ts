@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
 import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
+import { cors, httpErrorHandler } from 'middy/middlewares'
 
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { createLogger } from '../../utils/logger'
@@ -21,10 +21,12 @@ export const handler = middy(
     return buildResponse(201, todoResponse)
   })
 
-handler.use(
-  cors({
-    credentials: true
-  })
+handler
+  .use(httpErrorHandler())
+  .use(
+    cors({
+      credentials: true
+    })
 )
 
 interface TodoResponse {
