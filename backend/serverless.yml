@@ -33,22 +33,6 @@ provider:
     # Enable API Gateway logs
     restApi: true
 
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - xray:PutTelemetryRecords
-            - xray:PutTraceSegments
-          Resource: "*"
-        - Effect: Allow
-          Action:
-            - dynamodb:PutItem
-            - dynamodb:Query
-            - dynamodb:DeleteItem
-          Resource: !GetAtt TodosTable.Arn
-
-
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
@@ -65,6 +49,17 @@ functions:
           authorizer: Auth
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: !GetAtt TodosTable.Arn
+      - Effect: Allow
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
@@ -83,6 +78,17 @@ functions:
               application/json: ${file(models/create-todo-model.json)}
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt TodosTable.Arn
+      - Effect: Allow
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
@@ -99,6 +105,18 @@ functions:
               application/json: ${file(models/update-todo-model.json)}
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+        Resource: !GetAtt TodosTable.Arn
+      - Effect: Allow
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -112,6 +130,17 @@ functions:
           authorizer: Auth
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt TodosTable.Arn
+      - Effect: Allow
+        Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+        Resource: "*"
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
