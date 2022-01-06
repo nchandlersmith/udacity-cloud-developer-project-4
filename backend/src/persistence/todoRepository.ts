@@ -53,3 +53,18 @@ export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string)
     }
 }).promise()
 }
+
+export async function updateAttachmentUrlByTodoAndUserIds(todoId: string, userId: string, url: string): Promise<DocumentClient.Update> {
+  logger.info(`Updating table ${tableName} using ${todoId} with attchment url ${url}`)
+  return docClient.update({
+    TableName: tableName,
+    Key: {
+      "todoId": todoId,
+      "userId": userId
+    },
+    UpdateExpression: "set attachmentUrl = :url",
+    ExpressionAttributeValues: {
+      ":url": url
+    }
+  }).promise()
+}

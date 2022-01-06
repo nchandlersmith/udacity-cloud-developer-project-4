@@ -5,6 +5,7 @@ import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
 import { createUploadUrl } from '../../service/attachments'
+import { getUserId } from '../utils'
 
 const logger = createLogger('GenerateUploadUrl')
 
@@ -13,7 +14,7 @@ export const handler = middy(
     const todoId = event.pathParameters.todoId
 
     logger.info(`Generating url attachment url for todoId: ${todoId}`)
-    const url = createUploadUrl(todoId)
+    const url = await createUploadUrl(todoId, getUserId(event.headers.Authorization))
     logger.info(`${todoId} image url: ${url}`)
     
     return {

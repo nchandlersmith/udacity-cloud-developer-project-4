@@ -152,6 +152,14 @@ functions:
           path: todos/{todoId}/attachment
           cors: true
           authorizer: Auth
+    environment:
+      TODO_TABLE_NAME: !Ref TodosTable
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: !GetAtt TodosTable.Arn
 
 resources:
   Resources:
