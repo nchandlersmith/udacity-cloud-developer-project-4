@@ -3,6 +3,6 @@ import { updateAttachmentUrlByTodoAndUserIds } from "../persistence/todoReposito
 
 export async function createUploadUrl(todoId: string, userId: string): Promise<string> {
     const signedUrl = createSignedUrl(todoId)
-    await updateAttachmentUrlByTodoAndUserIds(todoId, userId, signedUrl)
+    await updateAttachmentUrlByTodoAndUserIds(todoId, userId)
     return signedUrl
 }

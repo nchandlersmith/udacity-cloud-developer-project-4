@@ -9,6 +9,7 @@ const docClient = new XAWS.DynamoDB.DocumentClient()
 
 const logger = createLogger('Todo Repository')
 const tableName = process.env.TODO_TABLE_NAME
+const bucketName = process.env.ATTACHMENT_S3_BUCKET
 
 export async function insertTodo(todo: TodoItem): Promise<TodoItem> {
     logger.info('Inserting todo.')
@@ -54,7 +55,8 @@ export async function deleteTodoByTodoAndUserIds(todoId: string, userId: string)
 }).promise()
 }
 
-export async function updateAttachmentUrlByTodoAndUserIds(todoId: string, userId: string, url: string): Promise<DocumentClient.Update> {
+export async function updateAttachmentUrlByTodoAndUserIds(todoId: string, userId: string): Promise<DocumentClient.Update> {
+  const url = `https://${bucketName}.s3.amazonaws.com/${todoId}`
   logger.info(`Updating table ${tableName} using ${todoId} with attchment url ${url}`)
   return docClient.update({
     TableName: tableName,

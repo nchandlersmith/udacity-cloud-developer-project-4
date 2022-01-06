@@ -154,6 +154,7 @@ functions:
           authorizer: Auth
     environment:
       TODO_TABLE_NAME: !Ref TodosTable
+      SIGNED_URL_EXPIRATION: 300
     iamRoleStatementsInherit: true
     iamRoleStatements:
       - Effect: Allow
